@@ -1,7 +1,8 @@
-import express from "express";
+import express, { urlencoded } from "express";
 import cors from "cors";
-
+import cookieParser from "cookie-parser"
 import authRouter from "./routers/auth.router.js";
+import { success } from "zod";
 
 const app = express();
 
@@ -12,10 +13,12 @@ app.use(
     })
 );
 
+app.use(cookieParser());
+app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
+//
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1", authRouter);
 
 app.get("/", (_req, res) => {
     res.json({
@@ -23,6 +26,13 @@ app.get("/", (_req, res) => {
         message: "ERP Backend API is running",
     });
 });
+
+app.get("/health", (_req, res) => {
+    res.json({
+        success: true,
+        message: "Server is active"
+    })
+})
 
 
 export default app;
