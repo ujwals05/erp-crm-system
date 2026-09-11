@@ -14,30 +14,60 @@ datasource db {
 
 //ENUMS
 
-enum UserRole {
-  ADMIN
-  SALES
-  WAREHOUSE
-  ACCOUNTS
-}
+
 
 //USERS
 
-model User {
-  id       String   @id @default(uuid())
-  name     String
-  username String @unique
-  email    String   @unique
-  password String
-  role     UserRole @default(SALES)
-  isActive Boolean  @default(true)
+model User{
+  id    String    @id @default(uuid())   
+  employeeCode    String  @unique
+  name    String
+  email   String    @unique
+  passwordHash    String
+  phone   String?
+  roleId  String
+  isActive    Boolean @default(true)
+  createdAt    DateTime  @default(now())  
+  updatedAt    DateTime  @updatedAt
 
-  refreshToken String?
+  role Role  @relation(fields:[roleId],references:[id], onDelete:Restrict)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([role])
+  @@index([roleId])
   @@index([isActive])
-  @@map("users")
+  
+}
+
+model Role{
+  id String @id @default(uuid())
+  name String @unique
+  description String?
+  createdAt    DateTime  @default(now())  
+  updatedAt    DateTime  @updatedAt
+  users User[]
+  rolePermission RolePermission[]
+
+  @@index([name])
+}
+
+model Permission{
+  id String @id @default(uuid())
+  name String
+  description String?
+  createdAt    DateTime  @default(now())  
+  updatedAt    DateTime  @updatedAt
+
+  rolePermission RolePermission[]
+
+  @@index([name])
+}
+
+
+model RolePermission{
+  roleId String
+  permissionId String
+  role   Role @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
 }
